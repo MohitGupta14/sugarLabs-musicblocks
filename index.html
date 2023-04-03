@@ -515,12 +515,13 @@
                             var count=0;    
                             function setIcon() {
                                 var property = document.getElementById(FullScreen);
-                                
+                                //Calling full Screen
                                 if (count == 0) {
                                     openFullscreen();
                                     
                                     count = 1;        
                                 }
+                                //Closing full Scree
                                 else {
                                     closeFullscreen();
                                     count = 0;
