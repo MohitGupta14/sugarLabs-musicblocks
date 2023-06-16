@@ -14,6 +14,10 @@
     top: 0;
     left: 0;
 }
+<<<<<<< HEAD
+=======
+
+>>>>>>> 322842f2 (Update windows.css)
 #floatingWindows > .windowFrame > .wfTopBar {
     height: 29px;
     border-bottom: 1px solid #666;
