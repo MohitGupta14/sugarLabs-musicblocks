@@ -10,14 +10,15 @@
 // Foundation, 51 Franklin Street, Suite 500 Boston, MA 02110-1335 USA
 
 /*
-   global _, jQuery, _THIS_IS_MUSIC_BLOCKS_, docById, doSVG
+  global _, jQuery, _THIS_IS_MUSIC_BLOCKS_, docById, doSVG, fnBrowserDetect,
+  RECORDBUTTON
  */
 
 /* exported Toolbar */
 
 let WRAP = true;
 const $j = jQuery.noConflict();
-
+let play_button_debounce_timeout = null;
 class Toolbar {
     /**
      * @constructor
@@ -45,6 +46,8 @@ class Toolbar {
                 ["mb-logo", _("About Music Blocks")],
                 ["play", _("Play")],
                 ["stop", _("Stop")],
+                ["record",_("Record")],
+                ["FullScreen", _("Full Screen")],
                 ["newFile", _("New project")],
                 ["load", _("Load project from file")],
                 ["saveButton", _("Save project")],
@@ -101,6 +104,8 @@ class Toolbar {
                 _("About Music Blocks"),
                 _("Play"),
                 _("Stop"),
+                _("Record"),
+                _("Full Screen"),
                 _("New project"),
                 _("Load project from file"),
                 _("Save project"),
@@ -138,6 +143,8 @@ class Toolbar {
                 ["mb-logo", _("About Turtle Blocks")],
                 ["play", _("Play")],
                 ["stop", _("Stop")],
+                ["record", _("Record")],
+                ["FullScreen", _("Full Screen")],
                 ["newFile", _("New project")],
                 ["load", _("Load project from file")],
                 ["saveButton", _("Save project")],
@@ -189,6 +196,8 @@ class Toolbar {
                 _("About Turtle Blocks"),
                 _("Play"),
                 _("Stop"),
+                _("Record"),
+                _("Full Screen"),
                 _("New project"),
                 _("Load project from file"),
                 _("Save project"),
@@ -304,9 +313,33 @@ class Toolbar {
         const playIcon = docById("play");
         const stopIcon = docById("stop");
 
-        playIcon.onclick = () => {
+        let isPlayIconRunning = false;
+
+        function handleClick() {
+            if (!isPlayIconRunning) {
+                playIcon.onclick = null;
+                // eslint-disable-next-line no-console
+                console.log("Wait for next 2 seconds to play the music");
+            } else {
+                // eslint-disable-next-line no-use-before-define
+                playIcon.onclick = tempClick;
+                isPlayIconRunning = false;
+            }
+        }
+
+        var tempClick = playIcon.onclick = () => {
+            isPlayIconRunning = false;
             onclick(this.activity);
+            handleClick();
             stopIcon.style.color = this.stopIconColorWhenPlaying;
+            isPlayIconRunning = true;
+            play_button_debounce_timeout = setTimeout(function() { handleClick(); }, 2000);
+
+            stopIcon.addEventListener("click", function(){
+                clearTimeout(play_button_debounce_timeout);
+                isPlayIconRunning = true;
+                handleClick();
+            });
         };
     }
 
@@ -317,7 +350,6 @@ class Toolbar {
      */
     renderStopIcon(onclick) {
         const stopIcon = docById("stop");
-
         stopIcon.onclick = () => {
             onclick(this.activity);
             stopIcon.style.color = "white";
@@ -645,6 +677,7 @@ class Toolbar {
     }
     /**
      * @public
+     * @param  {Function} rec_onclick
      * @param  {Function} analytics_onclick
      * @param  {Function} openPlugin_onclick
      * @param  {Function} delPlugin_onclick
@@ -652,18 +685,31 @@ class Toolbar {
      * @returns {void}
      */
     renderAdvancedIcons(
+        rec_onclick,
         analytics_onclick,
         openPlugin_onclick,
         delPlugin_onclick,
         setScroller
     ) {
+        const RecIcon = docById("record");
         const displayStatsIcon = docById("displayStatsIcon");
         const loadPluginIcon = docById("loadPluginIcon");
         const delPluginIcon = docById("delPluginIcon");
         const enableHorizScrollIcon = docById("enableHorizScrollIcon");
         const disableHorizScrollIcon = docById("disableHorizScrollIcon");
+        const browser = fnBrowserDetect();
+        const btn = document.getElementById("record");
+        const hideIn = ["firefox", "safari"];
+        if (hideIn.includes(browser)) {
+            btn.classList.add("hide");
+        }
 
         if (!this.activity.beginnerMode) {
+            RecIcon.innerHTML= `<i class=""material-icons main">${RECORDBUTTON}</i>`;
+            RecIcon.onclick = () => {
+                rec_onclick(this.activity);
+            };
+
             displayStatsIcon.onclick = () => {
                 analytics_onclick(this.activity);
             };

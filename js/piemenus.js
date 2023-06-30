@@ -3776,7 +3776,10 @@ const piemenuKey = (activity) => {
         obj[0] = obj[0].replace(SHARP, "#").replace(FLAT, "b");
 
         const tur = activity.turtles.ithTurtle(0);
+<<<<<<< HEAD
         console.log(tur);
+=======
+>>>>>>> eb62a1d4d512c8f383b7a79503105dd6924cb41f
         if (
             tur.singer.instrumentNames.length === 0 ||
             tur.singer.instrumentNames.indexOf(DEFAULTVOICE) === -1
